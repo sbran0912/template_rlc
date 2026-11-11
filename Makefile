@@ -22,7 +22,8 @@
 CC       ?= gcc
 
 # Name des erzeugten Programms
-TARGET   ?= bin/demo
+APPNAME = demo
+TARGET   ?= bin/$(APPNAME)
 
 # Quellcode: hier die eigene Datei eintragen (oder main.c anlegen)
 SRC      ?= app/main.c
@@ -68,7 +69,7 @@ cmake-build: cmake-init
 	$(CMAKE) --build $(CMAKE_BUILD_DIR)
 
 cmake-run: cmake-build
-	./$(CMAKE_BUILD_DIR)/demo
+	./$(CMAKE_BUILD_DIR)/$(APPNAME)
 
 cmake-clean:
 	rm -rf $(CMAKE_BUILD_DIR)
