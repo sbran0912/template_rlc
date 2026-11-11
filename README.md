@@ -64,6 +64,15 @@ make clean                  # Artefakte entfernen
 make BUILD_MODE=DEBUG       # Debug-Build mit -g -O0
 ```
 
+Der CMake-Build lässt sich ebenfalls über das Makefile steuern:
+
+```bash
+make cmake-init                     # CMake-Projekt konfigurieren (Ninja)
+make cmake                          # CMake-Build (clang)
+make cmake-run                      # CMake-Build und Programm starten
+make cmake-clean                    # build/ entfernen
+```
+
 ## Alternativer Build mit CMake + Ninja (clang)
 
 Als Alternative zum Makefile gibt es einen CMake-Build, der **clang** als Compiler
@@ -74,6 +83,9 @@ und **Ninja** als Generator verwendet. Alle Build-Artefakte bleiben im Ordner
 cmake -S . -B build -G Ninja
 cmake --build build
 ```
+
+Das entspricht genau dem Makefile-Target `make cmake-init` (Konfigurieren)
+gefolgt von `make cmake-build` (Bauen).
 
 Das Programm liegt danach unter `build/demo`.
 

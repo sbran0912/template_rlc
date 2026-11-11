@@ -7,6 +7,11 @@
 #       make run        -> kompiliert (falls nötig) und startet das Programm
 #       make clean      -> entfernt Build-Artefakte
 #
+#       make cmake-init -> CMake-Projekt konfigurieren (Ninja-Generator)
+#       make cmake      -> alternativer Build mit CMake + Ninja (clang)
+#       make cmake-run  -> CMake-Build und Programm starten
+#       make cmake-clean-> CMake-Build-Artefakte entfernen
+#
 #   Optionen:
 #       make BUILD_MODE=DEBUG     -> mit Debug-Informationen (-g -O0)
 #
@@ -49,4 +54,23 @@ run: $(TARGET)
 clean:
 	rm -f $(TARGET) *.o
 
-.PHONY: all run clean
+# --- CMake/Ninja-Build (Alternative, clang) -------------------------------------------------------
+
+CMAKE            ?= cmake
+CMAKE_BUILD_DIR  ?= build
+
+cmake: cmake-build
+
+cmake-init:
+	$(CMAKE) -S . -B $(CMAKE_BUILD_DIR) -G Ninja
+
+cmake-build: cmake-init
+	$(CMAKE) --build $(CMAKE_BUILD_DIR)
+
+cmake-run: cmake-build
+	./$(CMAKE_BUILD_DIR)/demo
+
+cmake-clean:
+	rm -rf $(CMAKE_BUILD_DIR)
+
+.PHONY: all run clean cmake cmake-init cmake-build cmake-run cmake-clean
