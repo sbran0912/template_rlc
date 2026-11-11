@@ -3,7 +3,7 @@
 #   raylib C-Vorlage – Makefile
 #
 #   Nutzung:
-#       make            -> kompiliert main.c zu "program"
+#       make            -> kompiliert app/main.c zu "bin/demo"
 #       make run        -> kompiliert (falls nötig) und startet das Programm
 #       make clean      -> entfernt Build-Artefakte
 #
@@ -17,10 +17,10 @@
 CC       ?= gcc
 
 # Name des erzeugten Programms
-TARGET   ?= bin/app
+TARGET   ?= bin/demo
 
 # Quellcode: hier die eigene Datei eintragen (oder main.c anlegen)
-SRC      ?= src/main.c
+SRC      ?= app/main.c
 
 # Build-Modus: RELEASE (Default) oder DEBUG
 BUILD_MODE ?= RELEASE
@@ -32,7 +32,7 @@ else
 endif
 
 # raylib-Header liegen im aktuellen Ordner
-INCLUDE_PATHS = -Isrc -Ilib
+INCLUDE_PATHS = -Iapp -Ilib
 
 # Statische raylib-Lib plus System-Bibliotheken (Wayland-Backend)
 LDLIBS = -Llib -lraylib -lGL -lm -lpthread -ldl -lrt \

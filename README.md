@@ -15,7 +15,6 @@ Einfache Projekt-Vorlage für raylib 6 (C), vorkompiliert für **Wayland-pur**.
 | `external/glad.h` | Wird nur von `rlgl.h` benötigt |
 | `Makefile` | Build-Datei (gcc) |
 | `CMakeLists.txt` | Alternativer Build mit CMake + Ninja (clang) |
-| `CMakePresets.json` | Presets für Release-/Debug-Builds |
 | `main.c` | Hier startet dein Programm |
 
 > **Hinweis:** Die Wayland-Protokoll-Header (`wayland-client-protocol.h`, …) sind
@@ -55,7 +54,7 @@ Einfache Projekt-Vorlage für raylib 6 (C), vorkompiliert für **Wayland-pur**.
 3. Starten:
 
    ```bash
-   make run        # oder direkt: bin/app
+   make run        # oder direkt: bin/demo
    ```
 
 ## Weitere Kommandos
@@ -71,44 +70,33 @@ Als Alternative zum Makefile gibt es einen CMake-Build, der **clang** als Compil
 und **Ninja** als Generator verwendet. Alle Build-Artefakte bleiben im Ordner
 `build/`; `bin/` ist dem Makefile vorbehalten.
 
-Mit den Presets landet das Programm unter `build/release/app` bzw.
-`build/debug/app`, ohne Presets unter `build/app`.
-
 ```bash
-# Release (Default)
-cmake --preset release
-cmake --build --preset release
-
-# Debug (-g -O0)
-cmake --preset debug
-cmake --build --preset debug
-
-# Starten
-cmake --build --preset release --target run
-```
-
-Ohne Presets geht es auch direkt:
-
-```bash
-cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang
+cmake -S . -B build -G Ninja
 cmake --build build
-cmake --build build --target run
 ```
 
-> Wird kein Compiler explizit angegeben, wählt `CMakeLists.txt` automatisch
-> `clang`, sofern vorhanden.
+Das Programm liegt danach unter `build/demo`.
+
+Nach Code-Änderungen genügt:
+
+```bash
+cmake --build build
+```
+
+Neu konfigurieren (`cmake -S . -B build -G Ninja`) muss man nur, wenn sich
+`CMakeLists.txt` ändert, neue Dateien hinzukommen oder `build/` gelöscht wurde.
+
+> Hinweis: Der Compiler ist in `CMakeLists.txt` fest auf `clang` gesetzt. Ein
+> bereits mit einem anderen Compiler konfiguriertes `build/` muss vorher
+> gelöscht werden (`rm -rf build`). Überschreiben lässt sich der Compiler mit
+> `-DCMAKE_C_COMPILER=...`.
 
 ### `compile_commands.json`
 
 CMake erzeugt die `compile_commands.json` nur, wenn `CMAKE_EXPORT_COMPILE_COMMANDS`
 aktiviert ist – standardmäßig ist das aus. In `CMakeLists.txt` ist es daher
-gesetzt, die Datei liegt anschließend im jeweiligen Build-Ordner, z. B.
-`build/release/compile_commands.json`.
-
-Zusätzlich legt CMake beim Konfigurieren automatisch einen relativen Symlink
-`compile_commands.json` im Projektstamm auf die Datei des zuletzt konfigurierten
-Build-Ordners an, damit `clangd` und IDEs sie ohne Zusatzkonfiguration finden.
-Eine bereits vorhandene echte Datei wird dabei nicht überschrieben.
+gesetzt, die Datei liegt anschließend unter `build/compile_commands.json`.
+clangd findet sie über den Eintrag `CompilationDatabase: build` in `.clangd`.
 
 Zum Aufräumen genügt das Löschen des Build-Ordners:
 
