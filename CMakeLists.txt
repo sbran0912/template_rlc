@@ -7,6 +7,17 @@ set(CMAKE_C_COMPILER clang)
 
 project(raylib_template C)
 
+# Standard-Build-Typ, falls beim Konfigurieren keiner angegeben wurde.
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
+# Optimierung/Debug-Infos je Build-Typ (statt fest verdrahtetem -O2).
+#   Debug   -> -O0 -g3   (volles Debugging)
+#   Release -> -O2 -DNDEBUG
+set(CMAKE_C_FLAGS_DEBUG "-O0 -g3")
+set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
+
 # Gleiche Sprachversion wie im Makefile: striktes C17 (-std=c17).
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -21,7 +32,7 @@ target_include_directories(demo PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/lib
 )
 
-target_compile_options(demo PRIVATE -Wall -Wextra -D_DEFAULT_SOURCE -O2)
+target_compile_options(demo PRIVATE -Wall -Wextra -D_DEFAULT_SOURCE)
 
 # Statische raylib-Lib plus System-Bibliotheken (Wayland-Backend),
 # analog zum Makefile

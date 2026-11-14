@@ -9,8 +9,10 @@
 #
 #       make cmake-init -> CMake-Projekt konfigurieren (Ninja-Generator)
 #       make cmake      -> alternativer Build mit CMake + Ninja (clang)
+#       make cmake-debug-> CMake-Debug-Build (-O0 -g3)
 #       make cmake-run  -> CMake-Build und Programm starten
 #       make cmake-clean-> CMake-Build-Artefakte entfernen
+#       make cmake-tidy -> clang-tidy ueber build/compile_commands.json
 #
 #   Optionen:
 #       make BUILD_MODE=DEBUG     -> mit Debug-Informationen (-g -O0)
@@ -63,9 +65,14 @@ CMAKE_BUILD_DIR  ?= build
 cmake: cmake-build
 
 cmake-init:
-	$(CMAKE) -S . -B $(CMAKE_BUILD_DIR) -G Ninja
+	$(CMAKE) -S . -B $(CMAKE_BUILD_DIR) -G Ninja -DCMAKE_BUILD_TYPE=Release
 
 cmake-build: cmake-init
+	$(CMAKE) --build $(CMAKE_BUILD_DIR)
+
+# Debug-Build (-O0 -g3), Binary unter build/$(APPNAME).
+cmake-debug:
+	$(CMAKE) -S . -B $(CMAKE_BUILD_DIR) -G Ninja -DCMAKE_BUILD_TYPE=Debug
 	$(CMAKE) --build $(CMAKE_BUILD_DIR)
 
 cmake-run: cmake-build
@@ -74,4 +81,12 @@ cmake-run: cmake-build
 cmake-clean:
 	rm -rf $(CMAKE_BUILD_DIR)
 
-.PHONY: all run clean cmake cmake-init cmake-build cmake-run cmake-clean
+# clang-tidy ueber die Compile-Datenbank aus build/.
+# cmake-init stellt sicher, dass build/compile_commands.json existiert.
+cmake-tidy: cmake-init
+	@echo "----------------------------"
+	@echo "Prüfen auf Speicherfehler..."
+	@echo "----------------------------"
+	clang-tidy -p $(CMAKE_BUILD_DIR) app/*.c
+
+.PHONY: all run clean cmake cmake-init cmake-build cmake-debug cmake-run cmake-clean cmake-tidy

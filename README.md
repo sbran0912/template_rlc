@@ -15,6 +15,7 @@ Einfache Projekt-Vorlage für raylib 6 (C), vorkompiliert für **Wayland-pur**.
 | `external/glad.h` | Wird nur von `rlgl.h` benötigt |
 | `Makefile` | Build-Datei (gcc) |
 | `CMakeLists.txt` | Alternativer Build mit CMake + Ninja (clang) |
+| `.clang-tidy` | Checks für `make cmake-tidy` (clang-analyzer/bugprone) |
 | `main.c` | Hier startet dein Programm |
 
 > **Hinweis:** Die Wayland-Protokoll-Header (`wayland-client-protocol.h`, …) sind
@@ -69,7 +70,9 @@ Der CMake-Build lässt sich ebenfalls über das Makefile steuern:
 ```bash
 make cmake-init                     # CMake-Projekt konfigurieren (Ninja)
 make cmake                          # CMake-Build (clang)
+make cmake-debug                    # CMake-Debug-Build (-O0 -g3)
 make cmake-run                      # CMake-Build und Programm starten
+make cmake-tidy                     # clang-tidy über build/compile_commands.json
 make cmake-clean                    # build/ entfernen
 ```
 
@@ -94,6 +97,26 @@ Nach Code-Änderungen genügt:
 ```bash
 cmake --build build
 ```
+
+Der Build-Typ ist standardmäßig `Release` (`-O2 -DNDEBUG`). Für einen
+Debug-Build mit vollen Debug-Infos (`-O0 -g3`):
+
+```bash
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+```
+
+Das entspricht dem Makefile-Target `make cmake-debug`. Ein Wechsel des
+Build-Typs in einem bestehenden `build/` funktioniert über
+`cmake -S . -B build -DCMAKE_BUILD_TYPE=...`; im Zweifel `rm -rf build` und
+neu konfigurieren.
+
+### clang-tidy
+
+`make cmake-tidy` führt clang-tidy über `app/*.c` aus und nutzt dabei die
+Compile-Datenbank `build/compile_commands.json`. Die Checks sind in
+`.clang-tidy` konfiguriert. Es wird zuerst `cmake-init` ausgeführt, damit die
+Datenbank existiert.
 
 Neu konfigurieren (`cmake -S . -B build -G Ninja`) muss man nur, wenn sich
 `CMakeLists.txt` ändert, neue Dateien hinzukommen oder `build/` gelöscht wurde.
