@@ -1,15 +1,16 @@
 [
   {
-    "label": "Debug: Demo (Clang / CodeLLDB)",
+    "label": "Debug: Demo (GCC / CodeLLDB)",
     "adapter": "CodeLLDB",
     "request": "launch",
-    "program": "${ZED_WORKTREE_ROOT}/build/demo",
+    "program": "${ZED_WORKTREE_ROOT}/bin/demo",
     "cwd": "${ZED_WORKTREE_ROOT}",
+    "preLaunchTask": "Make: Build Debug",
     "build": {
       "command": "sh",
       "args": [
         "-c",
-        "cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug && cmake --build build"
+        "make debug"
       ]
     }
   }

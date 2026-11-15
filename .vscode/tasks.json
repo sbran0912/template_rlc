@@ -20,7 +20,7 @@
     {
       "label": "gcc: build (Debug)",
       "type": "shell",
-      "command": "make clean && make BUILD_MODE=DEBUG -j$(nproc)",
+      "command": "make debug -j$(nproc)",
       "options": {
         "cwd": "${workspaceFolder}",
         "env": { "LC_ALL": "C" }
@@ -37,6 +37,20 @@
       "label": "gcc: clean",
       "type": "shell",
       "command": "make clean",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "clear": true
+      }
+    },
+    {
+      "label": "gcc: init (compile_commands)",
+      "type": "shell",
+      "command": "make init",
       "options": {
         "cwd": "${workspaceFolder}"
       },
