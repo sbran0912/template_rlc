@@ -1,0 +1,37 @@
+[
+  {
+    "label": "CMake: Init (Ninja)",
+    "command": "cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "CMake: Build Release",
+    "command": "cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release && cmake --build build",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "CMake: Run (Release)",
+    "command": "cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release && cmake --build build && ./build/demo",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "CMake: Clean",
+    "command": "rm -rf build",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "CMake: Clang-Tidy",
+    "command": "cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang && clang-tidy -p build app/*.c",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  }
+]
