@@ -6,17 +6,18 @@ Einfache Projekt-Vorlage für raylib 6 (C), vorkompiliert für **Wayland-pur**.
 
 | Datei | Zweck |
 |---|---|
-| `libraylib.a` | Statische raylib-Bibliothek (Wayland-Backend, OpenGL 3.3) |
-| `raylib.h` | Haupt-Header (inkludiert die Kern-API) |
-| `raymath.h` | Vektor-/Matrizen-Mathematik (Header-only) |
-| `rlgl.h` | Optionale Low-Level-OpenGL-API |
-| `rcamera.h` | Optionale Kamera-Hilfsfunktionen |
-| `rgestures.h` | Optionale Gestenerkennung |
-| `external/glad.h` | Wird nur von `rlgl.h` benötigt |
-| `Makefile` | Build-Datei (gcc) |
+| `app/main.c` | Hier startet dein Programm |
+| `lib/libraylib.a` | Statische raylib-Bibliothek (Wayland-Backend, OpenGL 3.3, GLFW eingebettet) |
+| `lib/raylib.h` | Haupt-Header (inkludiert die Kern-API) |
+| `lib/raymath.h` | Vektor-/Matrizen-Mathematik (Header-only) |
+| `lib/rlgl.h` | Optionale Low-Level-OpenGL-API |
+| `lib/rcamera.h` | Optionale Kamera-Hilfsfunktionen |
+| `lib/rgestures.h` | Optionale Gestenerkennung |
+| `lib/rlights.h` | Optionale Beleuchtungs-Helfer |
+| `lib/external/glad.h` | Wird nur von `rlgl.h` benötigt |
+| `Makefile` | Haupt-Build (gcc, inkrementell) |
 | `CMakeLists.txt` | Alternativer Build mit CMake + Ninja (clang) |
-| `.clang-tidy` | Checks für `make cmake-tidy` (clang-analyzer/bugprone) |
-| `main.c` | Hier startet dein Programm |
+| `.zed/`, `.vscode/` | Editor-/Debug-Konfiguration (Zed bzw. VS Code) |
 
 > **Hinweis:** Die Wayland-Protokoll-Header (`wayland-client-protocol.h`, …) sind
 > Build-Artefakte der Bibliothek und daher **nicht** enthalten – sie stecken
@@ -24,7 +25,7 @@ Einfache Projekt-Vorlage für raylib 6 (C), vorkompiliert für **Wayland-pur**.
 
 ## Schnellstart
 
-1. `main.c` anlegen (oder ergänzen), z. B.:
+1. `app/main.c` anlegen (oder ergänzen), z. B.:
 
    ```c
    #include "raylib.h"
@@ -61,36 +62,27 @@ Einfache Projekt-Vorlage für raylib 6 (C), vorkompiliert für **Wayland-pur**.
 ## Weitere Kommandos
 
 ```bash
-make clean                  # Artefakte entfernen
-make BUILD_MODE=DEBUG       # Debug-Build mit -g -O0
+make clean       # Build-Artefakte (obj/, bin/) entfernen
+make debug       # Debug-Build mit -O0 -g3 (löscht vorher)
+make run         # bauen (falls nötig) und starten
+make init        # compile_commands.json erzeugen (für clangd)
 ```
 
-Der CMake-Build lässt sich ebenfalls über das Makefile steuern:
+Der Build ist inkrementell: Objektdateien liegen in `obj/`, das Programm in
+`bin/demo`. `make debug` kompiliert mit `-O0 -g3`; da sich Release- und
+Debug-Build die Verzeichnisse `obj/` und `bin/` teilen, wird dabei vorher
+sauber gelöscht. Ein Wechsel also immer über `make clean` bzw. `make debug`.
 
-```bash
-make cmake-init                     # CMake-Projekt konfigurieren (Ninja)
-make cmake                          # CMake-Build (clang)
-make cmake-debug                    # CMake-Debug-Build (-O0 -g3)
-make cmake-run                      # CMake-Build und Programm starten
-make cmake-tidy                     # clang-tidy über build/compile_commands.json
-make cmake-clean                    # build/ entfernen
-```
+## Alternative: CMake + Ninja (clang)
 
-## Alternativer Build mit CMake + Ninja (clang)
-
-Als Alternative zum Makefile gibt es einen CMake-Build, der **clang** als Compiler
-und **Ninja** als Generator verwendet. Alle Build-Artefakte bleiben im Ordner
-`build/`; `bin/` ist dem Makefile vorbehalten.
+Als Ergänzung zu den Makefile-Zielen gibt es einen CMake-Build mit **clang**
+und **Ninja**. Er ist **nicht** in das Makefile eingebunden und wird direkt
+aufgerufen; alle Artefakte landen in `build/` (das Programm unter `build/demo`).
 
 ```bash
 cmake -S . -B build -G Ninja
 cmake --build build
 ```
-
-Das entspricht genau dem Makefile-Target `make cmake-init` (Konfigurieren)
-gefolgt von `make cmake-build` (Bauen).
-
-Das Programm liegt danach unter `build/demo`.
 
 Nach Code-Änderungen genügt:
 
@@ -99,51 +91,41 @@ cmake --build build
 ```
 
 Der Build-Typ ist standardmäßig `Release` (`-O2 -DNDEBUG`). Für einen
-Debug-Build mit vollen Debug-Infos (`-O0 -g3`):
+Debug-Build (`-O0 -g3`):
 
 ```bash
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
 ```
 
-Das entspricht dem Makefile-Target `make cmake-debug`. Ein Wechsel des
-Build-Typs in einem bestehenden `build/` funktioniert über
-`cmake -S . -B build -DCMAKE_BUILD_TYPE=...`; im Zweifel `rm -rf build` und
-neu konfigurieren.
+Aufräumen:
 
-### clang-tidy
-
-`make cmake-tidy` führt clang-tidy über `app/*.c` aus und nutzt dabei die
-Compile-Datenbank `build/compile_commands.json`. Die Checks sind in
-`.clang-tidy` konfiguriert. Es wird zuerst `cmake-init` ausgeführt, damit die
-Datenbank existiert.
-
-Neu konfigurieren (`cmake -S . -B build -G Ninja`) muss man nur, wenn sich
-`CMakeLists.txt` ändert, neue Dateien hinzukommen oder `build/` gelöscht wurde.
+```bash
+rm -rf build
+```
 
 > Hinweis: Der Compiler ist in `CMakeLists.txt` fest auf `clang` gesetzt. Ein
 > bereits mit einem anderen Compiler konfiguriertes `build/` muss vorher
 > gelöscht werden (`rm -rf build`). Überschreiben lässt sich der Compiler mit
 > `-DCMAKE_C_COMPILER=...`.
 
-### `compile_commands.json`
+## clangd (`compile_commands.json`)
 
-CMake erzeugt die `compile_commands.json` nur, wenn `CMAKE_EXPORT_COMPILE_COMMANDS`
-aktiviert ist – standardmäßig ist das aus. In `CMakeLists.txt` ist es daher
-gesetzt, die Datei liegt anschließend unter `build/compile_commands.json`.
-clangd findet sie über den Eintrag `CompilationDatabase: build` in `.clangd`.
+`make init` erzeugt per `bear` eine `compile_commands.json` **im
+Wurzelverzeichnis**. clangd findet sie dort automatisch (ein `.clangd` ist
+nicht nötig).
 
-Zum Aufräumen genügt das Löschen des Build-Ordners:
-
-```bash
-rm -rf build
-```
+> Der CMake-Build erzeugt seine Compile-Datenbank unter
+> `build/compile_commands.json`. Da sie nicht im Wurzelverzeichnis liegt, wird
+> sie von clangd nur gefunden, wenn man entsprechend darauf verweist.
 
 ## Manuelles Kompilieren (ohne Makefile)
 
+GL und die Wayland-Bibliotheken stecken bereits in `libraylib.a` (bzw. werden
+zur Laufzeit per `dlopen` geladen), daher genügen raylib und libm:
+
 ```bash
-gcc main.c -I. -L. -lraylib -lGL -lm -lpthread -ldl -lrt \
-  -lwayland-client -lwayland-cursor -lwayland-egl -lxkbcommon -o program
+gcc app/main.c -Iapp -Ilib -Llib -lraylib -lm -o demo
 ```
 
 ## Wichtige Hinweise
@@ -151,6 +133,10 @@ gcc main.c -I. -L. -lraylib -lGL -lm -lpthread -ldl -lrt \
 - Die Bibliothek ist **Wayland-pur** gebaut (kein X11-Codepfad). Das System muss
   eine laufende Wayland-Session haben (`$WAYLAND_DISPLAY` gesetzt).
 - `libwayland-client`, `libwayland-cursor`, `libwayland-egl` und `libxkbcommon`
-  werden erst **zur Laufzeit** per `dlopen` geladen – sie müssen im System
-  vorhanden sein (bei jeder Wayland-Desktop-Sitzung der Fall).
-- Kompiliert wurde gegen `gcc`, `-std=c99`, OpenGL 3.3.
+  werden von raylib erst **zur Laufzeit** per `dlopen` geladen – sie müssen im
+  System vorhanden sein (bei jeder Wayland-Desktop-Sitzung der Fall). Zur
+  Link-Zeit sind sie daher **nicht** nötig.
+- GLFW ist bereits in `libraylib.a` eingebettet, ein separates `-lglfw` bzw.
+  `-lGL` ist nicht erforderlich. `libpthread`, `libdl` und `librt` sind in
+  glibc ≥ 2.34 enthalten und müssen nicht extra gelinkt werden.
+- Kompiliert wurde gegen `gcc`, `-std=c17`, OpenGL 3.3.

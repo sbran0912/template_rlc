@@ -3,9 +3,10 @@ CC = gcc
 CFLAGS = -Wall -Wextra -O2 -std=c17 -D_DEFAULT_SOURCE -Iapp -Ilib
 CFLAGS_DEBUG = -Wall -Wextra -O0 -g3 -std=c17 -D_DEFAULT_SOURCE -Iapp -Ilib
 
-# Statische raylib-Lib plus System-Bibliotheken (Wayland-Backend)
-LDLIBS = -Llib -lraylib -lGL -lm -lpthread -ldl -lrt \
-         -lwayland-client -lwayland-cursor -lwayland-egl -lxkbcommon
+# Statische raylib-Lib. GL und die Wayland-Bibliotheken werden von raylib
+# zur Laufzeit per dlopen geladen, daher zur Link-Zeit nur raylib + libm
+# noetig (libpthread/libdl/librt stecken in glibc >= 2.34).
+LDLIBS = -Llib -lraylib -lm
 
 APPNAME = demo
 SRCS = app/main.c
