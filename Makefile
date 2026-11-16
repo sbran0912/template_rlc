@@ -1,4 +1,4 @@
-# Paralleler Build mit gcc (Makefile) und clang (CMake).
+# Build mit gcc (Makefile)
 CC = gcc
 CFLAGS = -Wall -Wextra -O2 -std=c17 -D_DEFAULT_SOURCE -Iapp -Ilib
 CFLAGS_DEBUG = -Wall -Wextra -O0 -g3 -std=c17 -D_DEFAULT_SOURCE -Iapp -Ilib
